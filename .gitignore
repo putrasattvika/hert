@@ -1,0 +1,24 @@
+# Logs
+logs
+*.log
+
+# Runtime data
+pids
+*.pid
+*.seed
+
+node_modules
+
+# Ignore .env configuration files
+.env
+
+# Ignore .DS_Store files on OS X
+.DS_Store
+
+#ignore idea folder
+.idea
+
+# ignore dist folder
+dist
+
+config.yml
