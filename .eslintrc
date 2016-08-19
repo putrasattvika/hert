@@ -1,0 +1,11 @@
+{
+  "env": {
+    //remove either of the lines below if you don't need it
+    //enable nodejs environment
+    "node": 1
+  },
+  "rules": {
+    //enable ESLint rules, such as
+    "eqeqeq": 1
+  }
+}
