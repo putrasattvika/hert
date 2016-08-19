@@ -25,7 +25,6 @@ export default class Hert {
         let timeUnit = helpers.getTimeUnit(timeFrame);
         let startTime = moment(endTime.format()).subtract(timeUnit.time, timeUnit.unit);
 
-        logger.info(`Query from ${startTime.format()} to ${endTime.format()}`);
         return {
             startTime: startTime.valueOf(),
             endTime: endTime.valueOf()
@@ -62,6 +61,7 @@ export default class Hert {
     processResponse (result) {
         let hits = result.hits;
         let lastHits = result.last;
+        let matched = false;
 
         if ((this.config.min_deviation || this.config.max_deviation) && this.config.type === 'compare') {
             let changedPercentage = 0;
@@ -69,42 +69,62 @@ export default class Hert {
                 changedPercentage = (hits - lastHits) / hits;
             }
 
-            logger.info(`Changed value ${changedPercentage}`);
+
+            logger.info(`[${this.config.name}] hits: ${hits}, last hits: ${lastHits}, changed percentage: ${changedPercentage}`);
             if (this.config.max_deviation) {
-                if (hits >= this.config.max_deviation) {
+                if (hits > this.config.max_deviation) {
                     logger.info(`Changed value ${changedPercentage} (maximum ${this.config.max_deviation}). sending alert`);
+                    matched = true;
                 }
             }
 
             if (this.config.min_deviation) {
-                if (hits <= this.config.min_deviation) {
+                if (hits < this.config.min_deviation) {
                     logger.info(`Changed value ${changedPercentage} (minimum ${this.config.max_deviation}). sending alert`);
+                    matched = true;
                 }
             }
 
-            return changedPercentage;
+            return {
+                matched: matched,
+                value: changedPercentage
+            };
         }
 
+        logger.info(`[${this.config.name}] hits: ${hits}`);
         if (this.config.max_hits) {
-            if (hits >= this.config.max_hits) {
+            if (hits > this.config.max_hits) {
                 logger.info(`Total hits ${hits} (maximum ${this.config.max_hits}). sending alert`);
+                matched = true;
             }
         }
 
         if (this.config.min_hits) {
-            if (hits <= this.config.min_hits) {
+            if (hits < this.config.min_hits) {
                 logger.info(`Total hits ${hits} (minimum ${this.config.min_hits}). sending alert`);
+                matched = true
             }
         }
 
-        return hits;
+        return {
+            matched: matched,
+            value: hits
+        };
     }
 
     processAlert (result) {
-        var alertMessage = util.format('Alert from: %s, Value: %s', this.config.name, result);
+        if (!result.matched) {
+            return false;
+        }
+
+        let alertMessage = util.format('Alert from: %s, Value: %s', this.config.name, result.hits);
 
         if (this.config.format) {
-            alertMessage = util.format(this.config.format, result);
+            if (alertMessage.indexOf('%s') >= 0) {
+                alertMessage = util.format(this.config.format, result.hits);
+            } else {
+                alertMessage = this.config.format;
+            }
         }
 
         this.config.alert.forEach(alert => {
@@ -115,6 +135,8 @@ export default class Hert {
             });
 
             alertSender.sendAlert(alert, alertObject);
-        })
+        });
+
+        return true;
     }
 }

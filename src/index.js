@@ -26,7 +26,13 @@ configs.forEach(config => {
             .then(app.processAlert.bind(app));
     };
 
-    job().then(() => {
+    if (config.runFirst) {
+        // Running the task when start program and running it again depends on cron configuration
+        job().then(() => {
+            jobs[config.name] = schedule.scheduleJob(config.cron, job);
+        });
+    } else {
+        // Running task depends on cron configuration
         jobs[config.name] = schedule.scheduleJob(config.cron, job);
-    });
+    }
 });
