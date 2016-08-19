@@ -19,4 +19,5 @@ export function sendAlert(type, data) {
     if (type === constants.ALERT.slack) {
         slack.sendAlert(data)
     }
+    
 }
