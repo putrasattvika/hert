@@ -19,9 +19,9 @@ Hert (Hit and Alert) is a simple alerting system from the amount of document hit
 ##config:
     - name: application_processor
       source: elasticsearch
-      cron: '45 11 * * *'
+      cron: '1 1 * * *'
       query: hostname: server1 AND tags: http_access
-      format: 'Traffic down'
+      format: 'Oh no, traffic down'
     
       timeFrame: 1 days
       min_hits: 10000
@@ -32,3 +32,6 @@ Hert (Hit and Alert) is a simple alerting system from the amount of document hit
       slack:
         channel: '@yourname'
         icon_emoji: ':ghost:'
+
+The task will run query every 01:01, if there is < 10000 hits in last 1 days, send alert to slack with message
+`Oh no, traffic down`
