@@ -4,7 +4,7 @@ import * as constants from './utils/constants'
 /**
  * Init alerting
  */
-export  function initAlert() {
+export function initAlert() {
     slack.init();
 }
 
@@ -19,5 +19,4 @@ export function sendAlert(type, data) {
     if (type === constants.ALERT.slack) {
         slack.sendAlert(data)
     }
-    
 }

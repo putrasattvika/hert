@@ -6,6 +6,15 @@
   },
   "rules": {
     //enable ESLint rules, such as
-    "eqeqeq": 1
+    "eqeqeq": 1,
+    "yoda": 1,
+    "no-dupe-args": 1,
+    "no-debugger": 1,
+    "no-console": 1,
+    "strict": 1
+  },
+  "parserOptions": {
+    "ecmaVersion": 7,
+    "sourceType": "module"
   }
 }
