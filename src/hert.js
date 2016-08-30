@@ -3,6 +3,7 @@ import util from 'util';
 import _ from 'lodash';
 import Promise from 'bluebird';
 import logger from './utils/logger';
+import * as date from './utils/date';
 import * as constants from './utils/constants';
 import * as helpers from './helpers';
 import * as alertSender from './alertSender'
@@ -14,7 +15,7 @@ export default class Hert {
     }
 
     getTimeFrame (endTime) {
-        endTime = endTime || moment();
+        endTime = endTime || date.createMoment();
 
         if (this.config.delay) {
             let timeUnit = helpers.getTimeUnit(this.config.delay);
@@ -39,16 +40,20 @@ export default class Hert {
             hits: currentQuery
         };
 
+        let momentStartTime = moment(currentTimeFrame.startTime).format('YYYY-MM-DD H:m:S');
+        let momentEndTime = moment(currentTimeFrame.endTime).format('YYYY-MM-DD H:m:S');
+        logger.info(`Query: ${this.config.query} from ${momentStartTime} to ${momentEndTime}`);
+
         if (this.config.distance) {
             if (this.config.deviation) {
                 logger.error('Deviation value required');
             }
 
             let timeUnit = helpers.getTimeUnit(this.config.distance);
-            let lastTimeFrame = this.getTimeFrame(moment().subtract(timeUnit.time, timeUnit.unit));
+            let lastTimeFrame = this.getTimeFrame(date.createMoment().subtract(timeUnit.time, timeUnit.unit));
 
             let lastQuery = this.dbDriver.query(this.config.query, lastTimeFrame.startTime, lastTimeFrame.endTime);
-
+	    
             _.extend(query, {
                 last: lastQuery
             });
