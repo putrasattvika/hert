@@ -3,7 +3,7 @@ import util from 'util';
 import _ from 'lodash';
 import Promise from 'bluebird';
 import logger from './utils/logger';
-import * as date from './utils/date';
+import * as dateUtils from './utils/date';
 import * as constants from './utils/constants';
 import * as helpers from './helpers';
 import * as alertSender from './alertSender'
@@ -15,7 +15,7 @@ export default class Hert {
     }
 
     getTimeFrame (endTime) {
-        endTime = endTime || date.createMoment();
+        endTime = endTime || dateUtils.createMoment();
 
         if (this.config.delay) {
             let timeUnit = helpers.getTimeUnit(this.config.delay);
@@ -40,8 +40,8 @@ export default class Hert {
             hits: currentQuery
         };
 
-        let momentStartTime = moment(currentTimeFrame.startTime).format('YYYY-MM-DD H:m:S');
-        let momentEndTime = moment(currentTimeFrame.endTime).format('YYYY-MM-DD H:m:S');
+        let momentStartTime = dateUtils.dateTimeFormatFromTimestamp(currentTimeFrame.startTime);
+        let momentEndTime = dateUtils.dateTimeFormatFromTimestamp(currentTimeFrame.endTime);
         logger.info(`Query: ${this.config.query} from ${momentStartTime} to ${momentEndTime}`);
 
         if (this.config.distance) {
@@ -50,7 +50,7 @@ export default class Hert {
             }
 
             let timeUnit = helpers.getTimeUnit(this.config.distance);
-            let lastTimeFrame = this.getTimeFrame(date.createMoment().subtract(timeUnit.time, timeUnit.unit));
+            let lastTimeFrame = this.getTimeFrame(dateUtils.createMoment().subtract(timeUnit.time, timeUnit.unit));
 
             let lastQuery = this.dbDriver.query(this.config.query, lastTimeFrame.startTime, lastTimeFrame.endTime);
 	    
@@ -97,14 +97,14 @@ export default class Hert {
         }
 
         logger.info(`[${this.config.name}] hits: ${hits}`);
-        if (this.config.max_hits) {
+        if (_.has(this.config, 'max_hits')) {
             if (hits > this.config.max_hits) {
                 logger.info(`Total hits ${hits} (maximum ${this.config.max_hits}). sending alert`);
                 matched = true;
             }
         }
 
-        if (this.config.min_hits) {
+        if (_.has(this.config, 'min_hits')) {
             if (hits < this.config.min_hits) {
                 logger.info(`Total hits ${hits} (minimum ${this.config.min_hits}). sending alert`);
                 matched = true
