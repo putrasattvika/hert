@@ -68,7 +68,7 @@ export default class Hert {
         let lastHits = result.last;
         let matched = false;
 
-        if ((this.config.min_deviation || this.config.max_deviation) && this.config.type === 'compare') {
+        if ((_.has(this.config, 'min_deviation') || _.has(this.config, 'max_deviation')) && this.config.type === 'compare') {
             let changedPercentage = 0;
             if (lastHits > 0) {
                 changedPercentage = (hits - lastHits) / hits;
@@ -76,14 +76,14 @@ export default class Hert {
 
 
             logger.info(`[${this.config.name}] hits: ${hits}, last hits: ${lastHits}, changed percentage: ${changedPercentage}`);
-            if (this.config.max_deviation) {
+            if (_.has(this.config, 'max_deviation')) {
                 if (hits > this.config.max_deviation) {
                     logger.info(`Changed value ${changedPercentage} (maximum ${this.config.max_deviation}). sending alert`);
                     matched = true;
                 }
             }
 
-            if (this.config.min_deviation) {
+            if (_.has(this.config, 'min_deviation')) {
                 if (hits < this.config.min_deviation) {
                     logger.info(`Changed value ${changedPercentage} (minimum ${this.config.max_deviation}). sending alert`);
                     matched = true;
