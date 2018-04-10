@@ -17,28 +17,24 @@ function query(query, startTime, endTime) {
         type: 'log',
         body: {
             query: {
-                filtered: {
-                    query: {
-                        query_string: {
-                            query: query,
-                            analyze_wildcard: true
-                        }
-                    },
-                    filter: {
-                        bool: {
-                            must: [
-                                {
-                                    range: {
-                                        "@timestamp": {
-                                            gte: startTime,
-                                            lte: endTime,
-                                            format: "epoch_millis"
-                                        }
-                                    }
+                bool: {
+                    must: [
+                        {
+                            query_string: {
+                                query: query,
+                                analyze_wildcard: true
+                            }
+                        },
+                        {
+                            range: {
+                                "@timestamp": {
+                                    gte: startTime,
+                                    lte: endTime,
+                                    format: "epoch_millis"
                                 }
-                            ]
+                            }
                         }
-                    }
+                    ]
                 }
             }
         }
